@@ -1,7 +1,7 @@
 import { useState } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "./components/ui/card";
+import { Input } from "./components/ui/input";
+import { Button } from "./components/ui/button";
 
 const mockDatabase = [
   { name: "Opifex2012", level: 13, organization: "Cultist", profession: "Warlock" },
