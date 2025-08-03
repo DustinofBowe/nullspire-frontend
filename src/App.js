@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { Card, CardContent } from "./components/ui/card";
-import { Input } from "./components/ui/input";
-import { Button } from "./components/ui/button";
 
 const mockDatabase = [
   { name: "Opifex2012", level: 13, organization: "Cultist", profession: "Warlock" },
@@ -27,50 +24,65 @@ export default function CharacterLookup() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 to-black text-white p-4">
-      <h1 className="text-4xl font-bold text-center mb-6 tracking-widest text-blue-400">
+    <div style={{ minHeight: "100vh", background: "linear-gradient(to bottom right, #1a1a2e, #000)", color: "white", padding: "1rem" }}>
+      <h1 style={{ fontSize: "2rem", fontWeight: "bold", textAlign: "center", marginBottom: "1.5rem", letterSpacing: "0.1em", color: "#60a5fa" }}>
         NullSpire Character Lookup
       </h1>
-      <div className="max-w-md mx-auto flex gap-2 mb-4">
-        <Input
+
+      <div style={{ maxWidth: "400px", margin: "0 auto", display: "flex", gap: "0.5rem", marginBottom: "1rem" }}>
+        <input
           placeholder="Enter character name..."
-          className="flex-grow bg-gray-800 border border-blue-600 text-white"
+          style={{ flexGrow: 1, backgroundColor: "#1f2937", border: "1px solid #3b82f6", color: "white", padding: "0.5rem", borderRadius: "0.375rem" }}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <Button onClick={handleSearch} className="bg-blue-600 hover:bg-blue-500">
+        <button
+          onClick={handleSearch}
+          style={{ backgroundColor: "#3b82f6", padding: "0.5rem 1rem", borderRadius: "0.375rem", color: "white", fontWeight: "bold" }}
+        >
           Search
-        </Button>
+        </button>
       </div>
 
-      {error && <p className="text-center text-red-500 mb-4">{error}</p>}
+      {error && <p style={{ textAlign: "center", color: "#f87171", marginBottom: "1rem" }}>{error}</p>}
 
       {character && (
-        <Card className="bg-gray-800 border border-blue-700 max-w-md mx-auto mb-6">
-          <CardContent className="p-4">
-            <h2 className="text-xl font-semibold text-blue-300 mb-2">{character.name}</h2>
-            <p><strong>Level:</strong> {character.level}</p>
-            <p><strong>Organization:</strong> {character.organization}</p>
-            <p><strong>Profession:</strong> {character.profession}</p>
-          </CardContent>
-        </Card>
+        <div style={{ backgroundColor: "#1f2937", border: "1px solid #2563eb", borderRadius: "0.5rem", maxWidth: "400px", margin: "0 auto", padding: "1rem", marginBottom: "1.5rem" }}>
+          <h2 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#93c5fd", marginBottom: "0.5rem" }}>{character.name}</h2>
+          <p><strong>Level:</strong> {character.level}</p>
+          <p><strong>Organization:</strong> {character.organization}</p>
+          <p><strong>Profession:</strong> {character.profession}</p>
+        </div>
       )}
 
-      <div className="max-w-md mx-auto mt-10">
-        <h2 className="text-2xl font-semibold text-blue-400 mb-4">Submit a New Character</h2>
-        <p className="text-sm text-gray-400 mb-2">This is manual for now, automation coming later.</p>
+      <div style={{ maxWidth: "400px", margin: "2rem auto 0" }}>
+        <h2 style={{ fontSize: "1.25rem", fontWeight: "600", color: "#60a5fa", marginBottom: "0.5rem" }}>Submit a New Character</h2>
+        <p style={{ fontSize: "0.875rem", color: "#9ca3af", marginBottom: "0.5rem" }}>This is manual for now, automation coming later.</p>
         <form className="space-y-2">
-          <Input placeholder="Name" className="bg-gray-800 border border-gray-700 text-white" />
-          <Input placeholder="Level" className="bg-gray-800 border border-gray-700 text-white" />
-          <Input placeholder="Organization" className="bg-gray-800 border border-gray-700 text-white" />
-          <Input placeholder="Profession" className="bg-gray-800 border border-gray-700 text-white" />
-          <Button className="w-full bg-green-600 hover:bg-green-500">Submit</Button>
+          <input placeholder="Name" style={inputStyle} />
+          <input placeholder="Level" style={inputStyle} />
+          <input placeholder="Organization" style={inputStyle} />
+          <input placeholder="Profession" style={inputStyle} />
+          <button style={{ width: "100%", backgroundColor: "#22c55e", padding: "0.5rem", borderRadius: "0.375rem", color: "white", fontWeight: "bold" }}>
+            Submit
+          </button>
         </form>
       </div>
 
-      <footer className="text-center text-gray-500 text-sm mt-12">
+      <footer style={{ textAlign: "center", color: "#6b7280", fontSize: "0.875rem", marginTop: "3rem" }}>
         <p>This is a fan-made website and is not officially affiliated with NullSpire or its developers.</p>
       </footer>
     </div>
   );
 }
+
+const inputStyle = {
+  display: "block",
+  width: "100%",
+  backgroundColor: "#1f2937",
+  border: "1px solid #374151",
+  color: "white",
+  padding: "0.5rem",
+  marginBottom: "0.5rem",
+  borderRadius: "0.375rem"
+};
