@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 
 const API_BASE = "https://nullspire-api.onrender.com";
 
@@ -127,4 +127,162 @@ function SubmitCharacter() {
         >
           {submitting ? "Submitting..." : "Submit"}
         </button>
-      <
+      </form>
+      {message && <p className="mt-3 text-green-400">{message}</p>}
+      {error && <p className="mt-3 text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+function AdminPage() {
+  const [password, setPassword] = useState("");
+  const [authorized, setAuthorized] = useState(false);
+  const [pending, setPending] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState({});
+  const [error, setError] = useState(null);
+
+  const API_ADMIN_HEADER = { "x-admin-password": password };
+
+  const fetchPending = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/pending`, {
+        headers: API_ADMIN_HEADER,
+      });
+      if (res.status === 401) {
+        setError("Unauthorized: Wrong password");
+        setAuthorized(false);
+        setPending([]);
+      } else if (!res.ok) {
+        throw new Error("Failed to load pending submissions.");
+      } else {
+        const data = await res.json();
+        setPending(data);
+        setAuthorized(true);
+      }
+    } catch (e) {
+      setError(e.message);
+    }
+    setLoading(false);
+  };
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    fetchPending();
+  };
+
+  const handleAction = async (id, approve) => {
+    setActionLoading((prev) => ({ ...prev, [id]: true }));
+    setError(null);
+    try {
+      const res = await fetch(`${API_BASE}/api/pending/${approve ? "approve" : "reject"}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...API_ADMIN_HEADER,
+        },
+        body: JSON.stringify({ id }),
+      });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Action failed");
+      }
+      await fetchPending();
+    } catch (e) {
+      setError(e.message);
+    }
+    setActionLoading((prev) => ({ ...prev, [id]: false }));
+  };
+
+  if (!authorized) {
+    return (
+      <div className="max-w-md mx-auto mt-20 p-6 bg-gray-900 rounded text-white">
+        <h2 className="text-xl mb-4">Admin Login</h2>
+        <form onSubmit={handleLogin} className="space-y-3">
+          <input
+            type="password"
+            placeholder="Enter admin password"
+            className="w-full p-2 bg-gray-800 border border-gray-700 rounded"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <button
+            type="submit"
+            className="w-full bg-blue-600 hover:bg-blue-500 p-2 rounded text-white"
+          >
+            Log In
+          </button>
+        </form>
+        {error && <p className="mt-3 text-red-500">{error}</p>}
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-2xl mx-auto mt-10 p-6 bg-gray-900 rounded text-white">
+      <h2 className="text-2xl mb-6">Pending Character Submissions</h2>
+      {loading ? (
+        <p>Loading...</p>
+      ) : pending.length === 0 ? (
+        <p>No pending submissions.</p>
+      ) : (
+        <table className="w-full text-left border-collapse border border-gray-700">
+          <thead>
+            <tr>
+              <th className="border border-gray-700 p-2">Name</th>
+              <th className="border border-gray-700 p-2">Level</th>
+              <th className="border border-gray-700 p-2">Organization</th>
+              <th className="border border-gray-700 p-2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {pending.map(({ id, name, level, organization }) => (
+              <tr key={id} className="border border-gray-700">
+                <td className="border border-gray-700 p-2">{name}</td>
+                <td className="border border-gray-700 p-2">{level}</td>
+                <td className="border border-gray-700 p-2">{organization}</td>
+                <td className="border border-gray-700 p-2 space-x-2">
+                  <button
+                    disabled={actionLoading[id]}
+                    onClick={() => handleAction(id, true)}
+                    className="bg-green-600 hover:bg-green-500 px-2 py-1 rounded"
+                  >
+                    {actionLoading[id] ? "..." : "Approve"}
+                  </button>
+                  <button
+                    disabled={actionLoading[id]}
+                    onClick={() => handleAction(id, false)}
+                    className="bg-red-600 hover:bg-red-500 px-2 py-1 rounded"
+                  >
+                    {actionLoading[id] ? "..." : "Reject"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      {error && <p className="mt-3 text-red-500">{error}</p>}
+    </div>
+  );
+}
+
+export default function App() {
+  const [page, setPage] = useState("lookup");
+
+  useEffect(() => {
+    const path = window.location.pathname.toLowerCase();
+    if (path === "/admin") setPage("admin");
+    else setPage("lookup");
+  }, []);
+
+  if (page === "admin") return <AdminPage />;
+  return (
+    <>
+      <CharacterLookup />
+      <SubmitCharacter />
+    </>
+  );
+}
