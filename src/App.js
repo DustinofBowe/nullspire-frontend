@@ -1,9 +1,16 @@
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import CharacterPage from "./CharacterPage";
+import AdminPage from "./AdminPage";
 
-export default function App() {
+function App() {
   return (
-    <div>
-      <CharacterPage />
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<CharacterPage />} />
+        <Route path="/admin" element={<AdminPage />} />
+      </Routes>
+    </Router>
   );
 }
+
+export default App;
