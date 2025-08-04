@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
+import { Routes, Route, Link } from "react-router-dom";
 import AdminPage from "./AdminPage";
 
 const backendURL = "https://nullspire-api.onrender.com";
@@ -125,6 +125,10 @@ function SubmitPage() {
       />
       <button onClick={handleSubmit}>Submit</button>
       {submitMessage && <p>{submitMessage}</p>}
+
+      <footer style={{ marginTop: "30px", fontSize: "12px", color: "gray" }}>
+        This is a fan site and is not officially affiliated with NullSpire.
+      </footer>
     </div>
   );
 }
