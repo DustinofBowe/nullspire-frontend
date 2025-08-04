@@ -1,23 +1,27 @@
-// src/App.js
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
-const backendURL = "https://nullspire-api.onrender.com"; // Your backend URL here
+const backendURL = "https://nullspire-api.onrender.com"; // Your backend URL
 
 function App() {
   const [lookupName, setLookupName] = useState("");
   const [lookupResult, setLookupResult] = useState(null);
+
   const [submitName, setSubmitName] = useState("");
   const [submitLevel, setSubmitLevel] = useState("");
   const [submitOrg, setSubmitOrg] = useState("");
+  const [submitProfession, setSubmitProfession] = useState("");
   const [submitMessage, setSubmitMessage] = useState("");
 
-  // Character Lookup Handler
+  // Lookup handler
   async function handleLookup(e) {
     e.preventDefault();
     setLookupResult(null);
-    if (!lookupName) return;
+    if (!lookupName.trim()) return;
+
     try {
-      const res = await fetch(`${backendURL}/api/characters?name=${encodeURIComponent(lookupName)}`);
+      const res = await fetch(
+        `${backendURL}/api/characters?name=${encodeURIComponent(lookupName.trim())}`
+      );
       if (!res.ok) {
         setLookupResult({ error: "Character not found." });
         return;
@@ -29,30 +33,41 @@ function App() {
     }
   }
 
-  // Character Submit Handler
+  // Submit handler
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitMessage("");
-    if (!submitName || !submitLevel || !submitOrg) {
+
+    // Check all fields filled
+    if (
+      !submitName.trim() ||
+      !submitLevel.trim() ||
+      !submitOrg.trim() ||
+      !submitProfession.trim()
+    ) {
       setSubmitMessage("Please fill all fields.");
       return;
     }
+
     try {
       const res = await fetch(`${backendURL}/api/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: submitName,
-          level: submitLevel,
-          organization: submitOrg,
+          name: submitName.trim(),
+          level: submitLevel.trim(),
+          organization: submitOrg.trim(),
+          profession: submitProfession.trim(),
         }),
       });
       const data = await res.json();
+
       if (res.ok) {
         setSubmitMessage(data.message);
         setSubmitName("");
         setSubmitLevel("");
         setSubmitOrg("");
+        setSubmitProfession("");
       } else {
         setSubmitMessage(data.error || "Submission failed.");
       }
@@ -76,15 +91,25 @@ function App() {
           Lookup
         </button>
       </form>
+
       {lookupResult && (
         <div style={{ marginTop: 20 }}>
           {lookupResult.error ? (
             <p style={{ color: "red" }}>{lookupResult.error}</p>
           ) : (
             <>
-              <p><strong>Name:</strong> {lookupResult.name}</p>
-              <p><strong>Level:</strong> {lookupResult.level}</p>
-              <p><strong>Organization:</strong> {lookupResult.organization}</p>
+              <p>
+                <strong>Name:</strong> {lookupResult.name}
+              </p>
+              <p>
+                <strong>Level:</strong> {lookupResult.level}
+              </p>
+              <p>
+                <strong>Organization:</strong> {lookupResult.organization}
+              </p>
+              <p>
+                <strong>Profession:</strong> {lookupResult.profession}
+              </p>
             </>
           )}
         </div>
@@ -114,6 +139,13 @@ function App() {
           placeholder="Organization"
           value={submitOrg}
           onChange={(e) => setSubmitOrg(e.target.value)}
+          style={{ width: "100%", padding: 8, marginBottom: 8 }}
+        />
+        <input
+          type="text"
+          placeholder="Profession"
+          value={submitProfession}
+          onChange={(e) => setSubmitProfession(e.target.value)}
           style={{ width: "100%", padding: 8, marginBottom: 8 }}
         />
         <button type="submit" style={{ width: "100%", padding: 8 }}>
