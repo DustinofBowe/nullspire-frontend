@@ -6,18 +6,31 @@ const backendURL = "https://nullspire-api.onrender.com";
 
 function LookupPage() {
   const [lookupName, setLookupName] = useState("");
-  const [lookupResult, setLookupResult] = useState(null);
+  const [results, setResults] = useState([]);
+  const [error, setError] = useState("");
 
   const handleLookup = () => {
-    setLookupResult(null);
+    setResults([]);
+    setError("");
     if (!lookupName) return;
+
     fetch(`${backendURL}/api/characters?name=${encodeURIComponent(lookupName)}`)
       .then((res) => {
-        if (res.ok) return res.json();
-        else throw new Error("Character Not Found");
+        if (!res.ok) throw new Error("Not found");
+        return res.json();
       })
-      .then((data) => setLookupResult(data))
-      .catch(() => setLookupResult({ error: "Character Not Found." }));
+      .then((data) => {
+        if (Array.isArray(data)) {
+          if (data.length === 0) {
+            setError("No characters found.");
+          } else {
+            setResults(data);
+          }
+        } else {
+          setResults([data]); // In case backend returns a single object
+        }
+      })
+      .catch(() => setError("No characters found."));
   };
 
   return (
@@ -35,18 +48,19 @@ function LookupPage() {
       />
       <button onClick={handleLookup}>Search</button>
 
-      {lookupResult && (
+      {error && <p>{error}</p>}
+
+      {results.length > 0 && (
         <div>
-          {lookupResult.error ? (
-            <p>{lookupResult.error}</p>
-          ) : (
-            <div>
-              <p>Name: {lookupResult.name}</p>
-              <p>Level: {lookupResult.level}</p>
-              <p>Organization: {lookupResult.organization}</p>
-              <p>Profession: {lookupResult.profession}</p>
+          <h3>Search Results:</h3>
+          {results.map((char) => (
+            <div key={char.id} style={{ border: "1px solid #ccc", margin: "10px", padding: "10px" }}>
+              <p><strong>Name:</strong> {char.name}</p>
+              <p><strong>Level:</strong> {char.level}</p>
+              <p><strong>Organization:</strong> {char.organization}</p>
+              <p><strong>Profession:</strong> {char.profession}</p>
             </div>
-          )}
+          ))}
         </div>
       )}
 
