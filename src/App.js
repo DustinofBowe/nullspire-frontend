@@ -6,31 +6,18 @@ const backendURL = "https://nullspire-api.onrender.com";
 
 function LookupPage() {
   const [lookupName, setLookupName] = useState("");
-  const [results, setResults] = useState([]);
-  const [error, setError] = useState("");
+  const [lookupResults, setLookupResults] = useState(null);
 
   const handleLookup = () => {
-    setResults([]);
-    setError("");
+    setLookupResults(null);
     if (!lookupName) return;
-
     fetch(`${backendURL}/api/characters?name=${encodeURIComponent(lookupName)}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Not found");
-        return res.json();
+        if (res.ok) return res.json();
+        else throw new Error("Character Not Found");
       })
-      .then((data) => {
-        if (Array.isArray(data)) {
-          if (data.length === 0) {
-            setError("No characters found.");
-          } else {
-            setResults(data);
-          }
-        } else {
-          setResults([data]); // In case backend returns a single object
-        }
-      })
-      .catch(() => setError("No characters found."));
+      .then((data) => setLookupResults(data))
+      .catch(() => setLookupResults({ error: "Character Not Found." }));
   };
 
   return (
@@ -48,19 +35,34 @@ function LookupPage() {
       />
       <button onClick={handleLookup}>Search</button>
 
-      {error && <p>{error}</p>}
-
-      {results.length > 0 && (
+      {lookupResults && (
         <div>
-          <h3>Search Results:</h3>
-          {results.map((char) => (
-            <div key={char.id} style={{ border: "1px solid #ccc", margin: "10px", padding: "10px" }}>
-              <p><strong>Name:</strong> {char.name}</p>
-              <p><strong>Level:</strong> {char.level}</p>
-              <p><strong>Organization:</strong> {char.organization}</p>
-              <p><strong>Profession:</strong> {char.profession}</p>
+          {lookupResults.error ? (
+            <p>{lookupResults.error}</p>
+          ) : Array.isArray(lookupResults) ? (
+            lookupResults.length === 0 ? (
+              <p>No characters found.</p>
+            ) : (
+              <ul>
+                {lookupResults.map((char) => (
+                  <li key={char.id}>
+                    <p><strong>Name:</strong> {char.name}</p>
+                    <p><strong>Level:</strong> {char.level}</p>
+                    <p><strong>Organization:</strong> {char.organization}</p>
+                    <p><strong>Profession:</strong> {char.profession}</p>
+                    <hr />
+                  </li>
+                ))}
+              </ul>
+            )
+          ) : (
+            <div>
+              <p>Name: {lookupResults.name}</p>
+              <p>Level: {lookupResults.level}</p>
+              <p>Organization: {lookupResults.organization}</p>
+              <p>Profession: {lookupResults.profession}</p>
             </div>
-          ))}
+          )}
         </div>
       )}
 
