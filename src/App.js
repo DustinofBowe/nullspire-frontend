@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Routes, Route, Link } from "react-router-dom";
 import AdminPage from "./AdminPage";
 
-const backendURL = "https://nullspire-api.onrender.com";
+const backendURL = "https://nullspire-backend.fly.dev";
 
 function LookupPage() {
   const [lookupName, setLookupName] = useState("");
